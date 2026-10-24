@@ -1,7 +1,9 @@
+import os
 import streamlit as st
 import pandas as pd
 from google import genai
 
+# Page Setup
 st.set_page_config(page_title="AgriSmart AI Advisor", page_icon="🌾", layout="centered")
 
 st.title("🌾 AgriSmart: Real-Time Mandi Decision Engine")
@@ -9,12 +11,35 @@ st.caption("Empowering smallholders with location-aware market intelligence.")
 
 st.markdown("---")
 
-# User Inputs
+# ---------------------------------------------------------
+# API KEY HANDLING (No User Input Required)
+# ---------------------------------------------------------
+# Put your fallback Gemini API key between the quotes below
+DEFAULT_API_KEY = "YOUR_ACTUAL_GEMINI_API_KEY_HERE"
+
+# Retrieve from Streamlit Secrets, Environment Variable, or Fallback Key
+api_key = st.secrets.get("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY") or DEFAULT_API_KEY
+
+# ---------------------------------------------------------
+# 1. USER INPUTS
+# ---------------------------------------------------------
 st.subheader("1. Enter Location & Crop")
 col1, col2 = st.columns(2)
 
 with col1:
-    crop = st.selectbox("Select Crop", ["Tomato", "Potato", "Wheat", "Onion", "Paddy (Rice)"])
+    crop_list = [
+        "Tomato", 
+        "Potato", 
+        "Wheat", 
+        "Onion", 
+        "Paddy (Rice)", 
+        "Sugarcane", 
+        "Cotton", 
+        "Maize", 
+        "Mustard", 
+        "Chana (Gram)"
+    ]
+    crop = st.selectbox("Select Crop", crop_list)
     quantity = st.number_input("Quantity (in Quintals)", min_value=1, value=20)
 
 with col2:
@@ -24,11 +49,12 @@ with col2:
 st.markdown("---")
 st.subheader("2. Market Discovery & AI Analysis")
 
-api_key = st.text_input("Enter Gemini API Key to Fetch Live Market Strategy:", type="password")
-
+# ---------------------------------------------------------
+# 2. AI GENERATION TRIGGER
+# ---------------------------------------------------------
 if st.button("🔍 Find Optimal Mandi & Rates"):
-    if not api_key:
-        st.error("Please enter your Gemini API key.")
+    if not api_key or api_key == "YOUR_ACTUAL_GEMINI_API_KEY_HERE":
+        st.error("API Key not found! Please paste your key into DEFAULT_API_KEY in app.py or set GEMINI_API_KEY in Streamlit Secrets.")
     else:
         try:
             client = genai.Client(api_key=api_key)
@@ -49,7 +75,6 @@ if st.button("🔍 Find Optimal Mandi & Rates"):
             """
 
             with st.spinner("Fetching market rates and generating decision matrix..."):
-                # Try primary model first, fallback to flash model if 503 occurs
                 try:
                     response = client.models.generate_content(
                         model="gemini-3.8-flash",
@@ -65,4 +90,4 @@ if st.button("🔍 Find Optimal Mandi & Rates"):
             st.markdown(response.text)
 
         except Exception as e:
-            st.error(f"Error: {e}")
+            st.error(f"Error connecting to AI service: {e}")
