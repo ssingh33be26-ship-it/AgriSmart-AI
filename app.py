@@ -5,14 +5,14 @@ import streamlit as st
 import pandas as pd
 from google import genai
 
-# Styling and HTML Header Configurations
+# Styling and Page Setup
 st.set_page_config(
     page_title="AgriSmart Mandi Selling Advisor",
     page_icon="🌾",
     layout="centered"
 )
 
-# inject custom css to style status card indicators and improve UI polish
+# Custom CSS styling
 st.markdown("""
 <style>
     .header-style {
@@ -37,30 +37,23 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# APPMART PHOTO & HEADER
-# ---------------------------------------------------------
-# Local and network image rendering fallback to maintain aesthetics
+# Header Section
 st.markdown("<div class='header-style'>🌾 AgriSmart: Mandi Selling Advisor</div>", unsafe_allow_html=True)
 st.caption("AI-powered market decision system for smallholder farmers. Making every harvest count.")
 st.markdown("<div class='accent-bar'></div>", unsafe_allow_html=True)
 
-# Visual header image (Punjabi farmer at harvest)
+# Direct web image URL for farmer header
 st.image(
-    "image_14.png", 
+    "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1200&q=80", 
     caption="Supporting India's smallholder farmers with location-aware AI marketplace insights.",
     use_container_width=True
 )
 
-# ---------------------------------------------------------
-# API KEY HANDLING (Robust System Variables & Local Backups)
-# ---------------------------------------------------------
+# API Key handling
 DEFAULT_API_KEY = "YOUR_ACTUAL_GEMINI_API_KEY_HERE"
 api_key = st.secrets.get("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY") or DEFAULT_API_KEY
 
-# ---------------------------------------------------------
-# SECTION 1: USER INPUTS
-# ---------------------------------------------------------
+# Section 1: User Inputs
 st.markdown("### 1. Enter Harvest Details")
 col1, col2 = st.columns(2)
 
@@ -77,41 +70,36 @@ with col2:
     location = st.text_input("📍 Your City/Town", "Patiala, Punjab")
     transport_rate = st.number_input("🚛 Transport Rate (₹/km/quintal)", min_value=1.0, value=2.5)
 
-# Beautiful Mandi Scene preview image
+# Direct web image URL for market scene
 st.image(
-    "image_13.png", 
-    caption="Dynamic Market View: Farmers and traders negotiating live rates at a regional Indian APMC Mandi.",
+    "https://images.unsplash.com/photo-1595855759920-86582396756a?auto=format&fit=crop&w=1200&q=80", 
+    caption="Dynamic Market View: Real-time APMC Mandi price analysis.",
     use_container_width=True
 )
 
 st.markdown("---")
 
-# ---------------------------------------------------------
-# SECTION 2: AI REASONING & WAITING QUOTES
-# ---------------------------------------------------------
+# Section 2: AI Market Analysis
 st.markdown("### 2. Live Mandi Market Intelligence")
 
-# Create waiting and processing proverbs/quotes to entertain the user
 waiting_quotes = [
     "“The farmer is the only man in our economy who buys everything at retail, sells everything at wholesale, and pays the freight both ways.” — John F. Kennedy",
-    "“To a fertile soil, a farmer's sweat is like gold.” (Punjabi Proverb)",
+    "“To a fertile soil, a farmer's sweat is like gold.”",
     "“Jai Jawan, Jai Kisan — Hail the Soldier, Hail the Farmer.” — Lal Bahadur Shastri",
     "“He who sows bountifully shall reap bountifully.”",
-    "“Agriculture is our wisest pursuit, because it will in the end contribute most to real wealth, good morals, and happiness.” — Thomas Jefferson",
-    "“If the farmer is rich, then the entire nation is rich.” (Indian Proverb)",
+    "“Agriculture is our wisest pursuit, because it will in the end contribute most to real wealth.” — Thomas Jefferson",
     "“Patience and hard work always bear the sweetest harvest.”"
 ]
 
 if st.button("🔍 Find Optimal Mandi & Rates"):
     if not api_key or api_key == "YOUR_ACTUAL_GEMINI_API_KEY_HERE":
-        st.error("API Key missing! Please configure the application key in your workspace dashboard.")
+        st.error("API Key missing! Please configure GEMINI_API_KEY in Streamlit Secrets or code.")
     else:
-        # Display progress status with a randomized quote
         progress_quote = random.choice(waiting_quotes)
         
         with st.status("🌱 Fetching real mandi rates & calculating transport margins...") as status:
             st.markdown(f"**While we fetch rates, think about this:** \n*{progress_quote}*")
-            time.sleep(2.5) # Provide slight dramatic tension to simulate AI reasoning
+            time.sleep(2)
             
             try:
                 client = genai.Client(api_key=api_key)
@@ -131,7 +119,6 @@ if st.button("🔍 Find Optimal Mandi & Rates"):
                 Return the response in clear Markdown with a summary table first, followed by 3 actionable bullet points. Use emojis for visibility.
                 """
 
-                # Model fallback to guarantee high uptime
                 try:
                     response = client.models.generate_content(
                         model="gemini-3.8-flash",
@@ -145,13 +132,11 @@ if st.button("🔍 Find Optimal Mandi & Rates"):
 
                 status.update(label="✅ Rates analyzed and localized!", state="complete", expanded=True)
                 
-                # Show results in card layout
                 st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
                 st.subheader("🤖 Optimal Mandi & Route Recommendation")
                 st.markdown(response.text)
                 st.markdown("</div>", unsafe_allow_html=True)
 
             except Exception as e:
-                status.update(label="❌ Gathering process failed", state="error", expanded=True)
-                st.error(f"Failed to connect to the analysis engine: {e}")
-                
+                status.update(label="❌ Analysis failed", state="error", expanded=True)
+                st.error(f"Failed to connect to AI engine: {e}")
