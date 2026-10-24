@@ -50,7 +50,7 @@ st.image(
 )
 
 # API Key handling
-DEFAULT_API_KEY = "YOUR_ACTUAL_GEMINI_API_KEY_HERE"
+DEFAULT_API_KEY = "AQ.Ab8RN6IVT7DC1LERUFnz_3wHzrksr-XTx_CCN8eufqwMjKC70w"
 api_key = st.secrets.get("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY") or DEFAULT_API_KEY
 
 # Section 1: User Inputs
