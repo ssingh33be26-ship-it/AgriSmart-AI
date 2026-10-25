@@ -71,9 +71,8 @@ if st.button("🔍 Find Optimal Mandi & Rates", type="primary"):
 
             # Display streamed output immediately
             with st.chat_message("assistant", avatar="🤖"):
-                # Use gemini-1.5-flash for maximum speed / lowest latency
                 response_stream = client.models.generate_content_stream(
-                    model="gemini-1.5-flash",
+                    model="gemini-2.5-flash",
                     contents=prompt,
                 )
                 
