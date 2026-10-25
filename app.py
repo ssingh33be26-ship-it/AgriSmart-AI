@@ -22,7 +22,7 @@ st.markdown("<div class='header-style'>🌾 AgriSmart: Mandi Selling Advisor</di
 st.caption("AI-powered market decision system for smallholder farmers.")
 st.markdown("<div class='accent-bar'></div>", unsafe_allow_html=True)
 
-# Lightweight compressed header image
+# Lightweight header image
 st.image(
     "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=600&q=50", 
     use_container_width=True
@@ -69,10 +69,10 @@ if st.button("🔍 Find Optimal Mandi & Rates", type="primary"):
             Return response in clean Markdown with a summary table first, followed by 3 actionable bullet points with emojis. Keep concise.
             """
 
-            # Display streamed output immediately
+            # Stream using the recommended gemini-3.8-flash model
             with st.chat_message("assistant", avatar="🤖"):
                 response_stream = client.models.generate_content_stream(
-                    model="gemini-2.5-flash",
+                    model="gemini-3.8-flash",
                     contents=prompt,
                 )
                 
